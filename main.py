@@ -9,13 +9,7 @@ cognito_client = boto3.client("cognito-idp", region_name="us-east-1")
 @app.route("/")
 @app.route("/<path:path>")
 def serve_react_app(path=""):
-    if path and (
-        path.endswith(".js")
-        or path.endswith(".css")
-        or path.endswith(".png")
-        or path.endswith(".jpg")
-        or path.endswith(".svg")
-    ):
+    if path and path.endswith((".js", ".css", ".png", ".jpg", ".svg")):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, "index.html")
 
