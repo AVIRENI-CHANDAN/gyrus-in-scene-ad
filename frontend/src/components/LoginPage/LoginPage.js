@@ -15,14 +15,7 @@ class LoginPage extends React.Component {
             <div className={styles.Logo}>{this.app_title}</div>
             <ul className={styles.NavLinks}>
               <li>
-                <button onClick={() => this.scrollToSection(this.featuresRef)} className={styles.NavLink}>
-                  Features
-                </button>
-              </li>
-              <li>
-                <button onClick={() => this.scrollToSection(this.howItWorksRef)} className={styles.NavLink}>
-                  How It Works
-                </button>
+                <Link to="/" className={styles.NavLink}>Home</Link>
               </li>
               <li>
                 <Link to="/login" className={styles.NavLink}>Login</Link>
