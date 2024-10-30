@@ -1,0 +1,131 @@
+.RegistrationPage {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100vh;
+    position: relative;
+
+    .Header {
+        flex: 0 0 auto;
+
+        .Navbar {
+            flex: 0 0 0.75rem;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+
+            .Logo {
+                flex: 0 0 150px;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .NavLinks {
+                flex: 1 1 auto;
+                list-style: none;
+                display: flex;
+                justify-content: flex-end;
+
+                li {
+                    margin: 0 1rem;
+
+                    .NavLink {
+                        color: inherit;
+                        text-decoration: none;
+                        border: none;
+                        background-color: transparent;
+                        cursor: pointer;
+                        font-size: 12px;
+                        font-family: Arial, Helvetica, sans-serif;
+
+                        &:hover {
+                            text-shadow: 0 0 2px gray;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Styling for the registration section
+    .RegistrationSection {
+        position: relative;
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        background-color: #f4f4f9;
+
+        .FormContainer {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 1rem;
+
+            h2 {
+                margin: 0;
+                padding: 0;
+                text-align: center;
+                color: #333;
+                font-size: 1.5rem;
+            }
+
+            .RegistrationForm {
+                display: flex;
+                flex-flow: column nowrap;
+                gap: 8px;
+
+                .InputContainer {
+                    display: flex;
+                    flex-direction: row;
+
+                    .Label {
+                        flex: 0 1 100px;
+                        font-size: 0.875rem;
+                        color: #555;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        align-items: center;
+                    }
+
+                    .Input {
+                        flex: 1 1 50%;
+                        padding: 0.5rem;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 0.875rem;
+                        outline: none;
+
+                        &:focus {
+                            border-color: #6c63ff;
+                            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+                        }
+                    }
+                }
+
+                .SubmitButton {
+                    padding: 0.75rem;
+                    background-color: #6c63ff;
+                    color: #fff;
+                    font-size: 0.875rem;
+                    font-weight: bold;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: #5751d7;
+                    }
+                }
+            }
+        }
+    }
+}
