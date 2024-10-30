@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './LoginPage.module.scss';
@@ -49,7 +50,7 @@ class LoginPage extends React.Component {
   }
 };
 
-LoginPage.propTypes = {};
+LoginPage.propTypes = { app_title: PropTypes.string.isRequired };
 
 LoginPage.defaultProps = {};
 
