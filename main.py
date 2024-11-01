@@ -68,7 +68,7 @@ def login():
         return jsonify({"error": "Password reset required"}), 403
     except Exception as e:
         print("Error", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal server error occurred"}), 500
 
 
 @app.route("/protected", methods=["GET"])
