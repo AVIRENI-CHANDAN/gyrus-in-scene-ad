@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 
 import boto3
@@ -5,7 +6,7 @@ from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder="frontend/build", static_folder="frontend/build")
-app.secret_key = "DD8B2119D7E8619946FF7997BC257"  # Set a secure secret key for sessions
+app.secret_key = os.getenv("SECRET_KEY")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)  # Session expiration time
 
 cognito_client = boto3.client("cognito-idp", region_name="us-east-1")
@@ -66,6 +67,7 @@ def login():
     except cognito_client.exceptions.PasswordResetRequiredException:
         return jsonify({"error": "Password reset required"}), 403
     except Exception as e:
+        print("Error", e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -78,5 +80,5 @@ def protected():
 
 
 if __name__ == "__main__":
-    CORS(app)
+    CORS(app, origins=["http://localhost:8000", "http://localhost:5000"])
     app.run(debug=True)
