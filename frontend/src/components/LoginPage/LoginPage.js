@@ -24,6 +24,7 @@ class LoginPage extends React.Component {
   loginUser(event) {
     event.preventDefault();
     fetch(this.login_end_point, {
+      signal: AbortSignal.timeout(5000),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
