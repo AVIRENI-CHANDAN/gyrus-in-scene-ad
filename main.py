@@ -80,5 +80,5 @@ def protected():
 
 
 if __name__ == "__main__":
-    CORS(app, origins=["http://localhost:8000", "http://localhost:5000"])
+    CORS(app, origins=["http://localhost:3000", "http://localhost:5000"])
     app.run(debug=True)
