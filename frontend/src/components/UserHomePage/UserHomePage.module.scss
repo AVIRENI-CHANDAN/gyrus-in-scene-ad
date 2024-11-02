@@ -1,1 +1,14 @@
-.UserHomePage {}
+.UserHomePage {
+    height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+
+    .NavigationBarContainer {
+        flex: 0 0 auto;
+        border-bottom: 1px solid gray;
+    }
+
+    .PageWrapper {
+        flex: 1 1 auto;
+    }
+}
