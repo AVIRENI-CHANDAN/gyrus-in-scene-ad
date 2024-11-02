@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 from jwt import PyJWKClient
+from werkzeug.exceptions import HTTPException
 
 # Load environment variables from .env file
 load_dotenv()
