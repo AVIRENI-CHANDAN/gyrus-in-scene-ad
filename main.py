@@ -104,8 +104,11 @@ def authenticate_user(username, password):
         if "ChallengeName" in response:
             raise AuthError("New password required", HTTPStatus.FORBIDDEN)
         return response["AuthenticationResult"]
-    except cognito_client.exceptions.NotAuthorizedException as e:
-        raise AuthError("Invalid credentials", HTTPStatus.UNAUTHORIZED) from e
+    except cognito_client.exceptions.NotAuthorizedException:
+        raise HTTPException(
+            response=jsonify({"error": "Invalid credentials"}),
+            code=HTTPStatus.UNAUTHORIZED,
+        )
 
 
 @app.route("/")
