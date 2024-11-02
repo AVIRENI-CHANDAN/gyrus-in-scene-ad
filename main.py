@@ -8,6 +8,7 @@ import requests
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
+from jwt import PyJWKClient
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,13 +32,29 @@ client_id = os.getenv("CLIENT_ID")
 
 
 def decode_id_token(id_token):
-    """Decode JWT token using AWS Cognito JWKS for verification."""
+    """Decode and verify JWT token using AWS Cognito JWKS."""
+    global aws_region, user_pool_id, client_id
+
+    # JWKS URL for the specified Cognito User Pool
+    jwks_url = f"https://cognito-idp.{aws_region}.amazonaws.com/{user_pool_id}/.well-known/jwks.json"
+
+    # Use PyJWKClient to get the key
+    jwks_client = PyJWKClient(jwks_url)
+    signing_key = jwks_client.get_signing_key_from_jwt(id_token)
+
     try:
-        return jwt.decode(id_token, options={"verify_signature": False})
-    except jwt.ExpiredSignatureError:
-        return {"error": "Token has expired"}
-    except jwt.InvalidTokenError:
-        return {"error": "Invalid token"}
+        # Decode and verify the token
+        return jwt.decode(
+            id_token,
+            key=signing_key.key,
+            algorithms=["RS256"],
+            audience=client_id,
+            issuer=f"https://cognito-idp.{aws_region}.amazonaws.com/{user_pool_id}",
+        )
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(status_code=401, detail="Token has expired") from e
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail="Invalid token") from e
 
 
 @app.route("/")
@@ -80,7 +97,6 @@ def login():
         return jsonify({"error": "Password reset required"}), HTTPStatus.FORBIDDEN
     except Exception as e:
         # Log the error securely
-        print("Internal Server Error:", e)
         return (
             jsonify({"error": "An internal server error occurred"}),
             HTTPStatus.INTERNAL_SERVER_ERROR,
