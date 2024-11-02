@@ -19,7 +19,7 @@ if not secret_key:
     raise RuntimeError("SECRET_KEY environment variable is required")
 app.secret_key = secret_key
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)  # Session expiration time
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = True  # Requires HTTPS
 
 aws_region = os.getenv("AWS_REGION")  # Replace with your AWS region
