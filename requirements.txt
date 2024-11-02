@@ -1,3 +1,6 @@
 flask
 boto3
 flask-cors
+pyjwt
+python-dotenv
+requests

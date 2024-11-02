@@ -1,9 +1,16 @@
 import os
 from datetime import timedelta
+from http import HTTPStatus  # Import HTTPStatus for response codes
 
 import boto3
+import jwt
+import requests
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__, template_folder="frontend/build", static_folder="frontend/build")
 secret_key = os.getenv("SECRET_KEY")
@@ -11,77 +18,97 @@ if not secret_key:
     raise RuntimeError("SECRET_KEY environment variable is required")
 app.secret_key = secret_key
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)  # Session expiration time
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True  # Requires HTTPS
 
-cognito_client = boto3.client("cognito-idp", region_name="us-east-1")
+aws_region = os.getenv("AWS_REGION")  # Replace with your AWS region
+
+cognito_client = boto3.client("cognito-idp", region_name=aws_region)
+
+# AWS Cognito configuration
+user_pool_id = os.getenv("USER_POOL_ID")
+client_id = os.getenv("CLIENT_ID")
 
 
-# Serve React's static files
+def decode_id_token(id_token):
+    """Decode JWT token using AWS Cognito JWKS for verification."""
+    try:
+        return jwt.decode(id_token, options={"verify_signature": False})
+    except jwt.ExpiredSignatureError:
+        return {"error": "Token has expired"}
+    except jwt.InvalidTokenError:
+        return {"error": "Invalid token"}
+
+
 @app.route("/")
 @app.route("/<path:path>")
 def serve_react_app(path=""):
+    """Serve React static files."""
     if path and path.endswith((".js", ".css", ".png", ".jpg", ".svg")):
-        return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, "index.html")
+        return send_from_directory(app.static_folder, path), HTTPStatus.OK
+    return send_from_directory(app.static_folder, "index.html"), HTTPStatus.OK
 
 
 @app.route("/login", methods=["POST"])
 def login():
-    print("data", request.json)
-    print(request.get_json())
     try:
-        # Initial login attempt with USER_PASSWORD_AUTH
+        # Authenticate user with USER_PASSWORD_AUTH
         response = cognito_client.initiate_auth(
-            ClientId="758360o6l7a0rkecb65mo7r0gd",
+            ClientId=client_id,
             AuthFlow="USER_PASSWORD_AUTH",
             AuthParameters={
                 "USERNAME": request.json["username"],
                 "PASSWORD": request.json["password"],
             },
         )
-        print("Cognito response", response)
-
-        # Check if the response requires a new password
+        # Check if a new password is required and prompt for it
         if (
             "ChallengeName" in response
             and response["ChallengeName"] == "NEW_PASSWORD_REQUIRED"
         ):
-            new_password = (
-                "$YourNewPassword123"  # Set or collect a new password securely
-            )
-            response = cognito_client.respond_to_auth_challenge(
-                ClientId="758360o6l7a0rkecb65mo7r0gd",
-                ChallengeName="NEW_PASSWORD_REQUIRED",
-                Session=response["Session"],
-                ChallengeResponses={
-                    "USERNAME": request.json["username"],
-                    "NEW_PASSWORD": new_password,
-                },
-            )
-
-        # Mark the session as logged in with tokens
+            # This flow needs the client app to handle the NEW_PASSWORD_REQUIRED challenge securely
+            return jsonify({"error": "New password required"}), HTTPStatus.FORBIDDEN
+        # Access tokens and other data from AuthenticationResult
+        auth_result = response["AuthenticationResult"]
         session["logged_in"] = True
         session["username"] = request.json["username"]
-        session["access_token"] = response["AuthenticationResult"]["AccessToken"]
-
-        return jsonify(response["AuthenticationResult"])
-
+        session["id_token"] = auth_result["IdToken"]
+        return jsonify(auth_result), HTTPStatus.OK
     except cognito_client.exceptions.NotAuthorizedException:
-        return jsonify({"error": "Invalid credentials"}), 401
+        return jsonify({"error": "Invalid credentials"}), HTTPStatus.UNAUTHORIZED
     except cognito_client.exceptions.PasswordResetRequiredException:
-        return jsonify({"error": "Password reset required"}), 403
+        return jsonify({"error": "Password reset required"}), HTTPStatus.FORBIDDEN
     except Exception as e:
-        print("Error", e)
-        return jsonify({"error": "An internal server error occurred"}), 500
+        # Log the error securely
+        print("Internal Server Error:", e)
+        return (
+            jsonify({"error": "An internal server error occurred"}),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
 
-@app.route("/protected", methods=["GET"])
-def protected():
-    # Check if the user is logged in
+@app.route("/user-info", methods=["POST"])
+def user_info():
+    fields = request.json["fields"]
     if not session.get("logged_in"):
-        return jsonify({"error": "Unauthorized access"}), 401
-    return jsonify({"message": f"Welcome {session['username']}!"})
+        return jsonify({"error": "Unauthorized access"}), HTTPStatus.UNAUTHORIZED
+    id_token = session.get("id_token")
+    decoded_response = decode_id_token(id_token)
+    api_response = {field: decoded_response[field] for field in fields}
+    return jsonify(api_response), HTTPStatus.OK
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    """Log the user out by clearing the session."""
+    session.clear()
+    return jsonify({"message": "Logged out successfully"}), HTTPStatus.OK
 
 
 if __name__ == "__main__":
-    CORS(app, origins=["http://localhost:3000", "http://localhost:5000"])
+    CORS(
+        app,
+        supports_credentials=True,
+        origins=["http://localhost:3000", "http://localhost:5000"],
+    )
     app.run(debug=True)
