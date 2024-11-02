@@ -64,11 +64,11 @@ class LoginPage extends React.Component {
   render() {
     // Redirect to /home if redirectToHome is true
     if (this.state.redirectToHome) {
-      return <Navigate to="/home" />;
+      return <Navigate to="/home" state={{ app_title: this.app_title }} />;
     }
 
     return (
-      <div className={styles.LoginPage}>
+      <div className={styles.LoginPage} >
         <header className={styles.Header}>
           <nav className={styles.Navbar}>
             <div className={styles.Logo}>{this.app_title}</div>
