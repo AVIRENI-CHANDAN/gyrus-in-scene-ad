@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from functools import wraps
 from http import HTTPStatus  # Import HTTPStatus for response codes
 
 import boto3
@@ -71,6 +72,42 @@ def decode_id_token(id_token):
         raise HTTPException(status_code=401, detail="Invalid token") from e
 
 
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("logged_in"):
+            return jsonify({"error": "Unauthorized access"}), HTTPStatus.UNAUTHORIZED
+        try:
+            id_token = session.get("id_token")
+            decoded_token = decode_id_token(id_token)
+            return f(decoded_token=decoded_token, *args, **kwargs)
+        except jwt.InvalidTokenError:
+            session.clear()
+            return jsonify({"error": "Invalid token"}), HTTPStatus.UNAUTHORIZED
+
+    return decorated
+
+
+class AuthError(Exception):
+    def __init__(self, message, status_code):
+        self.status_code = status_code
+        super().__init__(message)
+
+
+def authenticate_user(username, password):
+    try:
+        response = cognito_client.initiate_auth(
+            ClientId=client_id,
+            AuthFlow="USER_PASSWORD_AUTH",
+            AuthParameters={"USERNAME": username, "PASSWORD": password},
+        )
+        if "ChallengeName" in response:
+            raise AuthError("New password required", HTTPStatus.FORBIDDEN)
+        return response["AuthenticationResult"]
+    except cognito_client.exceptions.NotAuthorizedException:
+        raise AuthError("Invalid credentials", HTTPStatus.UNAUTHORIZED)
+
+
 @app.route("/")
 @app.route("/<path:path>")
 def serve_react_app(path=""):
@@ -83,51 +120,22 @@ def serve_react_app(path=""):
 @app.route("/login", methods=["POST"])
 def login():
     try:
-        # Authenticate user with USER_PASSWORD_AUTH
-        response = cognito_client.initiate_auth(
-            ClientId=client_id,
-            AuthFlow="USER_PASSWORD_AUTH",
-            AuthParameters={
-                "USERNAME": request.json["username"],
-                "PASSWORD": request.json["password"],
-            },
+        auth_result = authenticate_user(
+            request.json["username"], request.json["password"]
         )
-        # Check if a new password is required and prompt for it
-        if (
-            "ChallengeName" in response
-            and response["ChallengeName"] == "NEW_PASSWORD_REQUIRED"
-        ):
-            # This flow needs the client app to handle the NEW_PASSWORD_REQUIRED challenge securely
-            return jsonify({"error": "New password required"}), HTTPStatus.FORBIDDEN
-        # Access tokens and other data from AuthenticationResult
-        auth_result = response["AuthenticationResult"]
         session["logged_in"] = True
         session["username"] = request.json["username"]
         session["id_token"] = auth_result["IdToken"]
         return jsonify(auth_result), HTTPStatus.OK
-    except cognito_client.exceptions.NotAuthorizedException:
-        return jsonify({"error": "Invalid credentials"}), HTTPStatus.UNAUTHORIZED
-    except cognito_client.exceptions.PasswordResetRequiredException:
-        return jsonify({"error": "Password reset required"}), HTTPStatus.FORBIDDEN
-    except Exception as e:
-        # Log the error securely
-        return (
-            jsonify({"error": "An internal server error occurred"}),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+    except AuthError as e:
+        return jsonify({"error": str(e)}), e.status_code
 
 
 @app.route("/user-info", methods=["POST"])
-def user_info():
+@require_auth
+def user_info(decoded_token):
     fields = request.json["fields"]
-    if not session.get("logged_in"):
-        return jsonify({"error": "Unauthorized access"}), HTTPStatus.UNAUTHORIZED
-    id_token = session.get("id_token")
-    decoded_response = decode_id_token(id_token)
-    api_response = {
-        field: decoded_response[field] for field in fields if field in ALLOWED_FIELDS
-    }
-    return jsonify(api_response), HTTPStatus.OK
+    return jsonify({field: decoded_token[field] for field in fields}), HTTPStatus.OK
 
 
 @app.route("/logout", methods=["POST"])
