@@ -9,6 +9,7 @@
 
 
 .TitleContainer {
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
 }
@@ -29,25 +30,39 @@
 }
 
 .Actions {
+    flex: 1 1 auto;
     display: flex;
+    flex-flow: row nowrap;
     align-items: center;
+    justify-content: flex-end;
 }
 
 .ActionLink {
+    flex: 0 1 auto;
     margin-left: 1.5rem;
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.2s;
+    background-color: inherit;
+    cursor: pointer;
 
     &:hover {
         text-shadow: 0 0 1px gray;
     }
+}
 
-    &.logout-button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
+button.ActionLink {
+    @extend .ActionLink;
+    flex: 0 1 150px;
+    padding: 6px;
+    border: none;
+    font-size: 1rem;
+    background-color: rgba(100, 100, 250);
+    color: whitesmoke;
+    border-radius: 8px;
+
+    &:hover {
+        box-shadow: 0 0 2px gray;
     }
 }
 
