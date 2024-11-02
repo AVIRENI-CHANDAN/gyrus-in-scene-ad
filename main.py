@@ -30,6 +30,19 @@ cognito_client = boto3.client("cognito-idp", region_name=aws_region)
 user_pool_id = os.getenv("USER_POOL_ID")
 client_id = os.getenv("CLIENT_ID")
 
+ALLOWED_FIELDS = {
+    "birthdate",
+    "email",
+    "email_verified",
+    "exp",
+    "auth_time",
+    "iat",
+    "gender",
+    "phone_number",
+    "phone_number_verified",
+    "preferred_username",
+}
+
 
 def decode_id_token(id_token):
     """Decode and verify JWT token using AWS Cognito JWKS."""
@@ -110,7 +123,9 @@ def user_info():
         return jsonify({"error": "Unauthorized access"}), HTTPStatus.UNAUTHORIZED
     id_token = session.get("id_token")
     decoded_response = decode_id_token(id_token)
-    api_response = {field: decoded_response[field] for field in fields}
+    api_response = {
+        field: decoded_response[field] for field in fields if field in ALLOWED_FIELDS
+    }
     return jsonify(api_response), HTTPStatus.OK
 
 
