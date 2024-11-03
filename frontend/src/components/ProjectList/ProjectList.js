@@ -5,12 +5,7 @@ import styles from './ProjectList.module.scss';
 class ProjectList extends React.Component {
   constructor(props) {
     super(props);
-    this.projects = [{ name: "Title1", description: "Description 1" }, { name: "Title1", description: "Description 1" }, { name: "Title1", description: "Description 1" }, { name: "Title1", description: "Description 1" }, { name: "Title1", description: "Description 1" }, { name: "Title1", description: "Description 1" }, { name: "Title1", description: "Description 1" }];
-    this.onCreateProject = this.onCreateProject.bind(this);
-  }
-  onCreateProject(event) {
-    event.preventDefault();
-    console.log("Project create event");
+    this.projects = [{ name: "Title1", description: "Description 1" }];
   }
   render() {
     return (
