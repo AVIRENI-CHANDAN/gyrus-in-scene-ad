@@ -2,9 +2,13 @@
 This module handles user authentication using AWS Cognito.
 """
 
+from functools import wraps
 from http import HTTPStatus
 
 import boto3
+import jwt
+import requests
+from flask import jsonify, request
 
 from .environ import extract_environment_variable
 from .exceptions import AuthError
@@ -23,9 +27,7 @@ def authenticate_user(username, password):
     Raises:
         AuthError: If the user requires a new password or if credentials are invalid.
     """
-    aws_region = extract_environment_variable(
-        "AWS_REGION"
-    )  # Replace with your AWS region
+    aws_region = extract_environment_variable("AWS_REGION")
     client_id = extract_environment_variable("CLIENT_ID")
     cognito_client = boto3.client("cognito-idp", region_name=aws_region)
     try:
@@ -39,3 +41,54 @@ def authenticate_user(username, password):
         return response["AuthenticationResult"]
     except cognito_client.exceptions.NotAuthorizedException as e:
         raise AuthError("Invalid credentials", HTTPStatus.UNAUTHORIZED) from e
+
+
+# Function to get Cognito public keys (JWKs)
+def get_cognito_public_keys():
+    aws_region = extract_environment_variable("AWS_REGION")
+    user_pool_id = extract_environment_variable("USER_POOL_ID")
+    cognito_domain = f"https://cognito-idp.{aws_region}.amazonaws.com"
+    cognito_jwks_url = f"{cognito_domain}/{user_pool_id}/.well-known/jwks.json"
+
+    # Pass the URL to the PyJWKClient
+    return jwt.PyJWKClient(cognito_jwks_url)
+
+
+def cognito_token_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        client_id = extract_environment_variable("CLIENT_ID")
+        jwks_client = get_cognito_public_keys()
+        auth_header = request.headers.get("Authorization")
+        ALGORITHMS = ["RS256"]
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return (
+                jsonify({"error": "Authorization token is missing or malformed"}),
+                401,
+            )
+
+        token = auth_header.split(" ")[1]  # Extract the token
+        try:
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+            decoded_token = jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=ALGORITHMS,
+                # Remove the 'audience' parameter if the token does not include the 'aud' claim
+            )
+            request.user = decoded_token[
+                "sub"
+            ]  # Attach user identity to request if needed
+        except jwt.ExpiredSignatureError:
+            print("Expired token")
+            return jsonify({"error": "Token has expired"}), 401
+        except jwt.InvalidAudienceError:
+            print("Invalid audience")
+            return jsonify({"error": "Invalid audience in token"}), 401
+        except jwt.InvalidTokenError as e:
+            print(f"Invalid token details: {e}")
+            return jsonify({"error": f"Invalid token: {str(e)}"}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated_function

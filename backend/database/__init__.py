@@ -10,3 +10,13 @@ def initialize_database(app):
 
 def update_configuration(app):
     app.config.from_object(Config)
+
+
+def create_db_tables(app):
+    with app.app_context():
+        db.create_all()
+
+
+def add_to_db_session(object):
+    db.session.add(object)
+    db.session.commit()
