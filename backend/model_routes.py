@@ -9,7 +9,7 @@ def register_project_model_routes(app):
     @app.route("/projects", methods=["GET"])
     @cognito_token_required
     def get_projects():
-        user_id = get_jwt_identity()  # Get the user 'sub' from the JWT token
+        user_id = request.user  # Access the user ID set by the decorator
         projects = Project.query.filter_by(user_id=user_id).all()
         return jsonify(
             [
