@@ -1,11 +1,13 @@
 // NewProject.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import styles from './NewProject.module.scss';
 
 const NewProject = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +29,7 @@ const NewProject = () => {
         setName('');
         setDescription('');
         setError('');
+        navigate('/home'); // Redirect to "/home" on success
       } else {
         setError('Failed to create project. Please try again.');
       }
