@@ -6,7 +6,7 @@ for use throughout the application.
 from .application import create_flask_app
 from .auth import authenticate_user, cognito_token_required
 from .database import create_db_tables, initialize_database, update_configuration
-from .environ import extract_environment_variable
+from .environ import extract_environment_variable, safe_create_upload_folder
 from .exceptions import AuthError
 from .model_routes import register_project_model_routes
 from .routes import (
