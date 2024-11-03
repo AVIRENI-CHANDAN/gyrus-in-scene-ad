@@ -90,4 +90,62 @@
             }
         }
     }
+
+    .TimestampsContainer {
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 8px;
+
+        .Title {
+            flex: 0 0 auto;
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .VideoPlayer {
+            flex: 1 1 auto;
+            max-height: 300px;
+            width: 100%;
+            padding: 0 12px;
+        }
+
+        .SelectButton {
+            flex: 0 0 auto;
+            border-radius: 1em;
+            padding: 6px;
+            border: 1px solid gray;
+            cursor: pointer;
+            transition: box-shadow 0.5s;
+
+            &:hover {
+                box-shadow: 0 0 6px gray;
+            }
+        }
+
+        .TimestampList {
+            flex: 1 1 auto;
+            padding: 12px;
+            list-style: none;
+            display: flex;
+            flex-flow: row wrap;
+            gap: 12px;
+            max-width: 600px;
+            max-height: 100px;
+            overflow: auto;
+
+            .TimeStampItem {
+                flex: 0 1 100px;
+                border: 1px solid gray;
+                border-radius: 8px;
+                padding: 0 6px;
+                text-align: center;
+            }
+        }
+
+        .FinalizeButton {
+            @extend .SelectButton;
+        }
+    }
 }
