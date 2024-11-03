@@ -12,7 +12,9 @@ from backend import (
     STATIC_FOLDER,
     TEMPLATE_FOLDER,
     create_flask_app,
+    initialize_database,
     register_login_route,
+    register_project_model_routes,
     register_react_base,
     register_user_logout,
     register_user_validation,
@@ -33,6 +35,8 @@ register_react_base(app)
 register_login_route(app)
 register_user_validation(app)
 register_user_logout(app)
+register_project_model_routes(app)
+initialize_database(app)
 
 if __name__ == "__main__":
     if DEBUG:
