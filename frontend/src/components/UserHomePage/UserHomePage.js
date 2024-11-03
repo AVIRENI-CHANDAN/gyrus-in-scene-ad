@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import NavBar from './../NavBar/NavBar';
+import NewProject from './../NewProject/NewProject';
 import ProjectList from './../ProjectList/ProjectList';
 import styles from './UserHomePage.module.scss';
 
@@ -22,7 +23,7 @@ class UserHomePage extends React.Component {
         <div className={styles.PageWrapper}>
           <Routes>
             <Route path="/" element={<ProjectList />} />
-
+            <Route path="/new/project" element={<NewProject />} />
           </Routes>
         </div>
       </div>
