@@ -22,3 +22,4 @@ class Project(db.Model):
         db.DateTime, default=func.now()
     )  # Use db.func for current timestamp
     user_id = db.Column(db.String(255), db.ForeignKey("users.id"), nullable=False)
+    file_path = db.Column(db.String(300), nullable=True)  # Column to store file path

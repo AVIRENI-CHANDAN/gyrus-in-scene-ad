@@ -27,3 +27,8 @@ def extract_environment_variable(variable_name, default_val=None):
     if variable_value := os.getenv(variable_name, default_val):
         return variable_value
     raise ValueError(f"Environment variable {variable_name} is not set")
+
+
+def safe_create_upload_folder(app):
+    # Ensure you have a directory for file uploads
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)

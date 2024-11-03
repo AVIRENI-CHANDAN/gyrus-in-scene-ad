@@ -13,12 +13,14 @@ from backend import (
     TEMPLATE_FOLDER,
     create_db_tables,
     create_flask_app,
+    extract_environment_variable,
     initialize_database,
     register_login_route,
     register_project_model_routes,
     register_react_base,
     register_user_logout,
     register_user_validation,
+    safe_create_upload_folder,
 )
 
 app = create_flask_app(
@@ -29,6 +31,7 @@ app.config.update(
         "PERMANENT_SESSION_LIFETIME": timedelta(hours=1),  # Session expiration time
         "SESSION_COOKIE_SAMESITE": "Lax",
         "SESSION_COOKIE_SECURE": True,  # Requires HTTPS
+        "UPLOAD_FOLDER": extract_environment_variable("UPLOAD_FOLDER"),
     }
 )
 
@@ -37,6 +40,7 @@ register_login_route(app)
 register_user_validation(app)
 register_user_logout(app)
 register_project_model_routes(app)
+safe_create_upload_folder(app)
 initialize_database(app)
 create_db_tables(app)
 
