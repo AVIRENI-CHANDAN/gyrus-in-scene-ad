@@ -11,6 +11,7 @@ from backend import (
     DEBUG,
     STATIC_FOLDER,
     TEMPLATE_FOLDER,
+    create_db_tables,
     create_flask_app,
     initialize_database,
     register_login_route,
@@ -37,6 +38,7 @@ register_user_validation(app)
 register_user_logout(app)
 register_project_model_routes(app)
 initialize_database(app)
+create_db_tables(app)
 
 if __name__ == "__main__":
     if DEBUG:

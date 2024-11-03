@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 
-from .database import Project, db
+from .auth import cognito_token_required
+from .database import Project, add_to_db_session
 
 
 def register_project_model_routes(app):
     @app.route("/projects", methods=["GET"])
-    @jwt_required()
+    @cognito_token_required
     def get_projects():
         user_id = get_jwt_identity()  # Get the user 'sub' from the JWT token
         projects = Project.query.filter_by(user_id=user_id).all()
@@ -23,13 +24,15 @@ def register_project_model_routes(app):
         )
 
     @app.route("/projects", methods=["POST"])
-    @jwt_required()
+    @cognito_token_required
     def create_project():
-        user_id = get_jwt_identity()  # Get the user 'sub' from the JWT token
+        print("Inside the create_project function")
+
+        user_id = request.user  # Access the user ID set by the decorator
         data = request.get_json()
+
         new_project = Project(
             name=data["name"], description=data.get("description", ""), user_id=user_id
         )
-        db.session.add(new_project)
-        db.session.commit()
+        add_to_db_session(new_project)
         return jsonify({"message": "Project created successfully!"}), 201
