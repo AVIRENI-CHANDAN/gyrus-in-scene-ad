@@ -33,7 +33,7 @@ const NewProject = () => {
 
   const handleSelectTimestamp = () => {
     if (videoRef.current) {
-      const currentTime = videoRef.current.currentTime;
+      const {currentTime} = videoRef.current;
       const formattedTime = new Date(currentTime * 1000).toISOString().substr(11, 8); // Format as HH:MM:SS
       if (!timestamps.includes(formattedTime)) {
         setTimestamps([...timestamps, formattedTime]);
