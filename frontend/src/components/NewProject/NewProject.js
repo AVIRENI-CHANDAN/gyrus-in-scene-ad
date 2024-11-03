@@ -6,28 +6,40 @@ import styles from './NewProject.module.scss';
 const NewProject = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [file, setFile] = useState(null); // State to hold the selected file
   const [error, setError] = useState('');
   const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]); // Set the selected file
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Replace with how you retrieve the JWT token (e.g., from localStorage)
       const token = localStorage.getItem('bearer_token');
+
+      // Create a FormData object to hold the form data
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      if (file) {
+        formData.append('file', file); // Append the file to the form data
+      }
 
       const response = await fetch('/projects', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Include the JWT token here
         },
-        body: JSON.stringify({ name, description }),
+        body: formData, // Use formData as the body for the request
       });
 
       if (response.ok) {
         const data = await response.json();
         setName('');
         setDescription('');
+        setFile(null); // Reset the file input
         setError('');
         navigate('/home'); // Redirect to "/home" on success
       } else {
@@ -44,7 +56,7 @@ const NewProject = () => {
       <div className={styles.NewProjectContainer}>
         <h2 className={styles.Title}>Create New Project</h2>
         {error && <p className={styles.Error}>{error}</p>}
-        <form onSubmit={handleSubmit} className={styles.Form}>
+        <form onSubmit={handleSubmit} className={styles.Form} encType="multipart/form-data">
           <div className={styles.FormGroup}>
             <label htmlFor="name" className={styles.Label}>Project Name</label>
             <input
@@ -64,6 +76,15 @@ const NewProject = () => {
               className={styles.InputField}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
+          </div>
+          <div className={styles.FormGroup}>
+            <label htmlFor="file" className={styles.Label}>Upload File</label>
+            <input
+              type="file"
+              id="file"
+              className={styles.InputField}
+              onChange={handleFileChange}
+            />
           </div>
           <button type="submit" className={styles.SubmitButton}>Create Project</button>
         </form>
