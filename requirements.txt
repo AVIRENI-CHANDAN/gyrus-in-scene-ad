@@ -5,3 +5,5 @@ pyjwt
 python-dotenv
 requests
 cryptography
+flask-sqlalchemy
+Flask-JWT-Extended
