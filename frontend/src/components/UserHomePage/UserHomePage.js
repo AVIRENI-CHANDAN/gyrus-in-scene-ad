@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import NavBar from './../NavBar/NavBar';
+import ProjectList from './../ProjectList/ProjectList';
 import styles from './UserHomePage.module.scss';
 
 class UserHomePage extends React.Component {
@@ -18,7 +20,10 @@ class UserHomePage extends React.Component {
           <NavBar app_title={this.props.app_title} />
         </div>
         <div className={styles.PageWrapper}>
-          PageWrapper
+          <Routes>
+            <Route path="/" element={<ProjectList />} />
+
+          </Routes>
         </div>
       </div>
     );

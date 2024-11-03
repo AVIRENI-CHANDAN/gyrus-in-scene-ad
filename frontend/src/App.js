@@ -19,7 +19,7 @@ class App extends React.Component {
         <Route path="/" element={<LandingPage app_title={this.app_title} />} />
         <Route path="/login" element={<LoginPage app_title={this.app_title} />} />
         <Route path="/register" element={<RegistrationPage app_title={this.app_title} />} />
-        <Route path="/home" element={<UserHomePage app_title={this.app_title} />} />
+        <Route path="/home/*" element={<UserHomePage app_title={this.app_title} />} />
       </Routes>
     );
   }
