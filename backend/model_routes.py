@@ -65,4 +65,9 @@ def register_project_model_routes(app):
         )
         add_to_db_session(new_project)
 
-        return jsonify({"message": "Project created successfully!"}), 201
+        return (
+            jsonify(
+                {"message": "Project created successfully!", "filename": new_filename}
+            ),
+            201,
+        )
