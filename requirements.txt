@@ -8,4 +8,5 @@ cryptography
 flask-sqlalchemy
 Flask-JWT-Extended
 pillow==9.5.0
-moviepy
+opencv-python
+numpy

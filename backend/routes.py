@@ -8,8 +8,10 @@ import os
 from functools import wraps
 from http import HTTPStatus
 
+import cv2
 import jwt
 import moviepy.editor as mp
+import numpy as np
 from flask import Flask, jsonify, request, send_from_directory, session
 from jwt import PyJWKClient
 from moviepy.video.fx.all import freeze
@@ -204,57 +206,165 @@ def register_user_logout(app):
 
 
 def register_video_processing(app):
+    def replace_pixels_in_quadrilateral(
+        video_path, image_path, output_path, points, start_time_sec
+    ):
+        """
+        Replaces pixels in a specific quadrilateral region of each video frame with a resized target image,
+        starting from a specified timestamp.
+
+        Parameters:
+        - video_path: Path to the input video file.
+        - image_path: Path to the target image file.
+        - output_path: Path for saving the output video.
+        - points: A list of four (x, y) tuples representing the vertices of the quadrilateral
+                (top-left, top-right, bottom-right, bottom-left).
+        - start_time_sec: Time in seconds after which the image placement should start.
+        """
+        # Load the video
+        video_capture = cv2.VideoCapture(video_path)
+        if not video_capture.isOpened():
+            return
+        # Get video properties
+        frame_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = int(video_capture.get(cv2.CAP_PROP_FPS))
+        frame_count = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        codec = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for .mp4 output
+        # Calculate the frame number to start from based on the start time in seconds
+        # Get video properties
+        frame_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        # Print the dimensions
+        print(f"Video Dimensions: {frame_width} x {frame_height} pixels")
+        start_frame = int(start_time_sec * fps)
+        # Load the image
+        image = cv2.imread(image_path)
+        if image is None:
+            return
+
+        # Define the destination points (target area in the frame)
+        pts_dst = np.array(points, dtype="float32")
+
+        # Calculate the width and height of the bounding box for the target region
+        width = int(
+            max(
+                np.linalg.norm(pts_dst[0] - pts_dst[1]),
+                np.linalg.norm(pts_dst[2] - pts_dst[3]),
+            )
+        )
+        height = int(
+            max(
+                np.linalg.norm(pts_dst[0] - pts_dst[3]),
+                np.linalg.norm(pts_dst[1] - pts_dst[2]),
+            )
+        )
+
+        # Resize the image to match the target region dimensions
+        resized_image = cv2.resize(image, (width, height))
+
+        # Define the source points as the corners of the resized image
+        pts_src = np.array(
+            [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
+            dtype="float32",
+        )
+
+        # Compute the homography matrix
+        matrix = cv2.getPerspectiveTransform(pts_src, pts_dst)
+
+        # Create a video writer to save the output
+        video_writer = cv2.VideoWriter(
+            output_path, codec, fps, (frame_width, frame_height)
+        )
+
+        frame_number = 0
+        while video_capture.isOpened():
+            ret, frame = video_capture.read()
+            if not ret:
+                break
+
+            # Process only if the current frame number is after the specified start frame
+            if frame_number >= start_frame:
+                # Warp the resized image onto the frame using the homography matrix
+                warped_image = cv2.warpPerspective(
+                    resized_image, matrix, (frame_width, frame_height)
+                )
+
+                # Create a mask from the warped image to isolate the region
+                mask = np.zeros((frame_height, frame_width), dtype=np.uint8)
+                cv2.fillConvexPoly(mask, pts_dst.astype(int), 255)
+
+                # Invert the mask to black out the region in the frame
+                mask_inv = cv2.bitwise_not(mask)
+                frame_bg = cv2.bitwise_and(frame, frame, mask=mask_inv)
+
+                # Combine the background frame with the warped image region
+                frame_final = cv2.add(
+                    frame_bg, cv2.bitwise_and(warped_image, warped_image, mask=mask)
+                )
+
+                # Write the modified frame to the output video
+                video_writer.write(frame_final)
+            else:
+                # Write the original frame before the start time
+                video_writer.write(frame)
+
+            frame_number += 1
+            if frame_number % 50 == 0:
+                if frame_number >= start_frame:
+                    print("replacing the frame", end=" ")
+                print(f"Processed {frame_number}/{frame_count} frames")
+
+        # Release resources
+        video_capture.release()
+        video_writer.release()
+        cv2.destroyAllWindows()
+
     UPLOAD_FOLDER = extract_environment_variable("UPLOAD_FOLDER")
     RESULT_FOLDER = extract_environment_variable("RESULT_FOLDER")
 
     @app.route("/process_video", methods=["POST"])
     def process_video():
         try:
-            # Retrieve the video filename from the form data
+            print("Request form data:", request.form)
             video_filename = request.form.get("video_filename")
-            print("Video file name", video_filename)
             if not video_filename:
                 return jsonify({"error": "No video filename provided"}), 400
 
             video_path = os.path.join(UPLOAD_FOLDER, video_filename)
-
-            # Check if the file exists
             if not os.path.exists(video_path):
                 return jsonify({"error": "Video file not found"}), 404
-            print("Found the video file")
 
-            # Get and parse the timestamps from the request
             timestamps = request.form.get("timestamps")
             if not timestamps:
                 return jsonify({"error": "No timestamps provided"}), 400
 
-            timestamps = json.loads(timestamps)  # Parse the JSON string
-            print("Got the timestamps", timestamps)
+            timestamps = json.loads(timestamps)
             image_path = extract_environment_variable("OVERLAY_IMAGE")
+            overlay_image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
 
-            # Process the video with MoviePy
-            video = mp.VideoFileClip(video_path)
-            clips = []
+            if overlay_image is None:
+                return jsonify({"error": "Overlay image not found"}), 404
 
-            print("Looping over timestamps")
-            for entry in timestamps:
-                timestamp = float(entry["timestamp"])  # Ensure timestamp is a float
-                points = entry["points"]  # Points array with x and y as percentages
-                print("Preparing overlay image clip")
-                overlay_image_clip = (
-                    mp.ImageClip(image_path)
-                    .set_start(timestamp)
-                    .set_duration(1)  # Adjust duration as needed
-                    .resize((100, 100), Image.Resampling.LANCZOS)  # Resize as needed
-                    .set_position((points[0]["x"], points[0]["y"]))
-                )
-                clips.append(overlay_image_clip)
-                print("Overlay clip added")
-            print("End of timestamp loops")
-            final_video = mp.CompositeVideoClip([video] + clips)
-            print("Made the final video")
-            result_path = os.path.join(RESULT_FOLDER, f"processed_{video_filename}")
-            final_video.write_videofile(result_path, codec="libx264")
+            print("details", image_path, timestamps, video_path)
+            start_seconds = float(timestamps[0]["timestamp"])
+            points = timestamps[0]["points"]
+            points = [
+                tuple([float(i) * 5 for i in points[0].values()]),
+                tuple([float(i) * 5 for i in points[1].values()]),
+                tuple([float(i) * 5 for i in points[2].values()]),
+                tuple([float(i) * 5 for i in points[2].values()]),
+            ]
+            print("Points:", points)
+            result_path = os.path.join(RESULT_FOLDER, f"result_{video_filename}")
+            replace_pixels_in_quadrilateral(
+                video_path,
+                image_path,
+                result_path,
+                points,
+                start_seconds,
+            )
 
             return (
                 jsonify(
@@ -263,7 +373,7 @@ def register_video_processing(app):
                         "result_path": result_path,
                     }
                 ),
-                200,
+                500,
             )
 
         except Exception as e:
