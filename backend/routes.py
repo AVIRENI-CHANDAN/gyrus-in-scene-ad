@@ -3,12 +3,17 @@ This module defines route registration functions for the Flask application,
 including authentication and React app serving routes.
 """
 
+import json
+import os
 from functools import wraps
 from http import HTTPStatus
 
 import jwt
-from flask import jsonify, request, send_from_directory, session
+import moviepy.editor as mp
+from flask import Flask, jsonify, request, send_from_directory, session
 from jwt import PyJWKClient
+from moviepy.video.fx.all import freeze
+from PIL import Image
 from werkzeug.exceptions import Unauthorized
 
 from .auth import authenticate_user
@@ -196,3 +201,70 @@ def register_user_logout(app):
         """
         session.clear()
         return jsonify({"message": "Logged out successfully"}), HTTPStatus.OK
+
+
+def register_video_processing(app):
+    UPLOAD_FOLDER = extract_environment_variable("UPLOAD_FOLDER")
+    RESULT_FOLDER = extract_environment_variable("RESULT_FOLDER")
+
+    @app.route("/process_video", methods=["POST"])
+    def process_video():
+        try:
+            # Retrieve the video filename from the form data
+            video_filename = request.form.get("video_filename")
+            print("Video file name", video_filename)
+            if not video_filename:
+                return jsonify({"error": "No video filename provided"}), 400
+
+            video_path = os.path.join(UPLOAD_FOLDER, video_filename)
+
+            # Check if the file exists
+            if not os.path.exists(video_path):
+                return jsonify({"error": "Video file not found"}), 404
+            print("Found the video file")
+
+            # Get and parse the timestamps from the request
+            timestamps = request.form.get("timestamps")
+            if not timestamps:
+                return jsonify({"error": "No timestamps provided"}), 400
+
+            timestamps = json.loads(timestamps)  # Parse the JSON string
+            print("Got the timestamps", timestamps)
+            image_path = extract_environment_variable("OVERLAY_IMAGE")
+
+            # Process the video with MoviePy
+            video = mp.VideoFileClip(video_path)
+            clips = []
+
+            print("Looping over timestamps")
+            for entry in timestamps:
+                timestamp = float(entry["timestamp"])  # Ensure timestamp is a float
+                points = entry["points"]  # Points array with x and y as percentages
+                print("Preparing overlay image clip")
+                overlay_image_clip = (
+                    mp.ImageClip(image_path)
+                    .set_start(timestamp)
+                    .set_duration(1)  # Adjust duration as needed
+                    .resize((100, 100), Image.Resampling.LANCZOS)  # Resize as needed
+                    .set_position((points[0]["x"], points[0]["y"]))
+                )
+                clips.append(overlay_image_clip)
+                print("Overlay clip added")
+            print("End of timestamp loops")
+            final_video = mp.CompositeVideoClip([video] + clips)
+            print("Made the final video")
+            result_path = os.path.join(RESULT_FOLDER, f"processed_{video_filename}")
+            final_video.write_videofile(result_path, codec="libx264")
+
+            return (
+                jsonify(
+                    {
+                        "message": "Video processed successfully",
+                        "result_path": result_path,
+                    }
+                ),
+                200,
+            )
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
