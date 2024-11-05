@@ -5,9 +5,11 @@ including authentication and React app serving routes.
 
 import json
 import os
+import time
 from functools import wraps
 from http import HTTPStatus
 
+import boto3
 import cv2
 import jwt
 import moviepy.editor as mp
@@ -18,7 +20,11 @@ from moviepy.video.fx.all import freeze
 from PIL import Image
 from werkzeug.exceptions import Unauthorized
 
-from .auth import authenticate_user
+from .auth import (
+    authenticate_user,
+    confirm_user_account,
+    register_user_with_permanent_password,
+)
 from .environ import extract_environment_variable
 from .exceptions import AuthError
 from .settings import ALLOWED_FIELDS
@@ -77,6 +83,105 @@ def register_login_route(app):
             return jsonify(auth_result), HTTPStatus.OK
         except AuthError as e:
             return jsonify({"error": str(e)}), e.status_code
+
+
+def register_registration_route(app):
+    @app.route("/register", methods=["POST"])
+    def register_user():
+        print("Received request for user registration")
+
+        # Get data from request
+        data = request.get_json()
+        print("Received data:", data)
+
+        # Extract fields
+        birthdate = data.get("birthdate")
+        email = data.get("email")
+        gender = data.get("gender")
+        phone_number = data.get("phoneNumber")
+        username = data.get("username")
+        password = data.get("password")
+
+        print(
+            "Extracted fields - Birthdate:",
+            birthdate,
+            "Email:",
+            email,
+            "Gender:",
+            gender,
+            "Phone Number:",
+            phone_number,
+            "Username:",
+            username,
+        )
+
+        # Format phone number in E.164 format
+        if not phone_number.startswith("+"):
+            phone_number = "+1" + phone_number
+        print("Formatted phone number:", phone_number)
+
+        aws_region = extract_environment_variable("AWS_REGION")
+        print("AWS Region extracted:", aws_region)
+
+        try:
+            session = boto3.Session()  # Use session for reliable credentials handling
+            cognito_client = session.client("cognito-idp", region_name=aws_region)
+            print("Initialized Cognito client")
+
+            # Step 1: Register the user and include preferred_username directly
+            print("Attempting to register user with username:", username)
+            response = cognito_client.sign_up(
+                ClientId=os.getenv("CLIENT_ID"),
+                Username=username,
+                Password=password,
+                UserAttributes=[
+                    {"Name": "email", "Value": email},
+                    {"Name": "birthdate", "Value": birthdate},
+                    {"Name": "gender", "Value": gender},
+                    {"Name": "phone_number", "Value": phone_number},
+                    {"Name": "preferred_username", "Value": username},
+                ],
+            )
+            print("Registration response from Cognito:", response)
+
+            # Step 2: Confirm the user account immediately after sign-up
+            print("Attempting to confirm user account for:", username)
+            confirm_response = cognito_client.admin_confirm_sign_up(
+                UserPoolId=os.getenv("USER_POOL_ID"), Username=username
+            )
+            print("User confirmed successfully:", confirm_response)
+
+            # Step 3: Verify confirmation status
+            user_status = cognito_client.admin_get_user(
+                UserPoolId=os.getenv("USER_POOL_ID"), Username=username
+            )
+            print("User confirmation status:", user_status["UserStatus"])
+
+            return (
+                jsonify({"message": "User registered and confirmed successfully"}),
+                201,
+            )
+
+        except cognito_client.exceptions.UsernameExistsException:
+            print("Error: Username already exists in Cognito")
+            return jsonify({"error": "Username already exists"}), 409
+        except cognito_client.exceptions.InvalidParameterException as e:
+            print("Error: Invalid parameter provided -", e)
+            return jsonify({"error": str(e)}), 400
+        except cognito_client.exceptions.ResourceNotFoundException as e:
+            print("Error: Cognito resource not found -", e)
+            return jsonify({"error": "Resource not found", "details": str(e)}), 500
+        except Exception as e:
+            print("An unexpected error occurred during registration:", e)
+            return (
+                jsonify(
+                    {
+                        "error": "An error occurred during registration",
+                        "details": str(e),
+                    }
+                ),
+                500,
+            )
 
 
 def register_user_validation(app):
