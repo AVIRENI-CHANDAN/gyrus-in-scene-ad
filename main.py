@@ -18,6 +18,7 @@ from backend import (
     register_login_route,
     register_project_model_routes,
     register_react_base,
+    register_registration_route,
     register_user_logout,
     register_user_validation,
     register_video_processing,
@@ -40,6 +41,7 @@ app.config.update(
 
 register_react_base(app)
 register_login_route(app)
+register_registration_route(app)
 register_user_validation(app)
 register_user_logout(app)
 register_project_model_routes(app)

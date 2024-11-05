@@ -16,6 +16,7 @@ from .model_routes import register_project_model_routes
 from .routes import (
     register_login_route,
     register_react_base,
+    register_registration_route,
     register_user_logout,
     register_user_validation,
     register_video_processing,
