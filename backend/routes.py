@@ -12,11 +12,9 @@ from http import HTTPStatus
 import boto3
 import cv2
 import jwt
-import moviepy.editor as mp
 import numpy as np
 from flask import Flask, jsonify, request, send_from_directory, session
 from jwt import PyJWKClient
-from moviepy.video.fx.all import freeze
 from PIL import Image
 from werkzeug.exceptions import Unauthorized
 
