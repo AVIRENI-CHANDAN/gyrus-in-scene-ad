@@ -56,16 +56,54 @@
         flex: 1;
         background-color: #f4f4f9;
         padding: 2rem 0;
+        background: linear-gradient(45deg,
+                rgba(255, 0, 0, 0.8),
+                /* Red */
+                rgba(0, 0, 255, 0.8),
+                /* Blue */
+                rgba(128, 0, 128, 0.8),
+                /* Purple */
+                rgba(238, 130, 238, 0.8)
+                /* Violet */
+            );
+        background-size: 200% 200%;
+        animation: ambientColorShift 8s ease infinite;
+
+        @keyframes ambientColorShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
         .LoginContainer {
             background-color: #ffffff;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 12px;
+
+            .ImageBox {
+                flex: 1 1 auto;
+                display: flex;
+                align-items: center;
+
+                .Image {
+                    width: 150px;
+                }
+            }
 
             .LoginForm {
+                flex: 1 1 auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;

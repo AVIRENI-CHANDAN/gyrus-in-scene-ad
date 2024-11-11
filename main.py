@@ -4,6 +4,7 @@ Main module for initializing and running the Flask application.
 
 from datetime import timedelta
 
+from dotenv import load_dotenv
 from flask_cors import CORS
 
 from backend import (
@@ -25,6 +26,8 @@ from backend import (
     safe_create_results_folder,
     safe_create_upload_folder,
 )
+
+load_dotenv()
 
 app = create_flask_app(
     __name__, template_folder=TEMPLATE_FOLDER, static_folder=STATIC_FOLDER

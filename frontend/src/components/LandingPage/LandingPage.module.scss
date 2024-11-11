@@ -7,6 +7,33 @@ $footer-text-color: whitesmoke;
 $footer-link-hover-shadow: 0 0 2px gray;
 
 .LandingPage {
+    background-color: transparent;
+    background: linear-gradient(45deg,
+            rgba(255, 0, 0, 0.8),
+            /* Red */
+            rgba(0, 0, 255, 0.8),
+            /* Blue */
+            rgba(128, 0, 128, 0.8),
+            /* Purple */
+            rgba(238, 130, 238, 0.8)
+            /* Violet */
+        );
+    background-size: 200% 200%;
+    animation: ambientColorShift 8s ease infinite;
+
+    @keyframes ambientColorShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
 
     // Hero Section
     .HeroSection {
@@ -20,6 +47,7 @@ $footer-link-hover-shadow: 0 0 2px gray;
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-between;
+            background-color: white;
 
             .Logo {
                 flex: 0 0 150px;
@@ -63,6 +91,7 @@ $footer-link-hover-shadow: 0 0 2px gray;
             align-items: center;
 
             .HeroContentWrapper {
+                flex: 0 1 auto;
                 max-width: 600px;
                 margin: 2rem;
 
@@ -75,6 +104,13 @@ $footer-link-hover-shadow: 0 0 2px gray;
                     margin-top: 1rem;
                     display: inline-block;
                 }
+            }
+
+            .GyrusImage {
+                flex: 0 1 auto;
+                padding: 1rem;
+                box-shadow: 0 0 12px black;
+                user-select: none;
             }
         }
     }

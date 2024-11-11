@@ -148,4 +148,55 @@
             @extend .SelectButton;
         }
     }
+
+    .PointSelectionContainer {
+        position: relative;
+
+        .Title {
+            margin: 0;
+            padding-inline: 6px 0;
+        }
+
+        .ActionDescription {
+            margin: 0;
+            padding: 4px;
+        }
+
+        .TimestampList {
+            display: flex;
+            flex-flow: row nowrap;
+            list-style: decimal-leading-zero;
+            margin: 0;
+        }
+
+        .CurrentTimeStampSelected {
+            display: flex;
+            padding: 4px 12px;
+        }
+
+        .VideoPlayer {
+            max-height: 500px;
+        }
+
+        .PointsList {
+            margin: 0 0 0 12px;
+            padding: 0;
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 48px;
+            list-style: decimal;
+        }
+
+        .FinalizeButton {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid gray;
+            outline: none;
+            background: whitesmoke;
+            cursor: pointer;
+        }
+    }
 }

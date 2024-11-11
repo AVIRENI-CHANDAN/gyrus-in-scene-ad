@@ -232,7 +232,7 @@ const NewProject = () => {
       {step === 3 && (
         <div className={styles.PointSelectionContainer}>
           <h2 className={styles.Title}>Select Points for Each Timestamp</h2>
-          <p>Select a timestamp to place points:</p>
+          <p className={styles.ActionDescription}>Select a timestamp to place points:</p>
           <ul className={styles.TimestampList}>
             {timestamps.map((ts, index) => (
               <li
@@ -244,7 +244,9 @@ const NewProject = () => {
               </li>
             ))}
           </ul>
-          {currentTimestamp && <p>Current Timestamp: {currentTimestamp}</p>}
+          <div className={styles.CurrentTimeStampSelected}>
+            {currentTimestamp && <>Current Timestamp: {currentTimestamp}</>}
+          </div>
           <video
             ref={videoRef}
             className={styles.VideoPlayer}

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import styles from './LoginPage.module.scss';
+import gyrus_png from './../images/gyrus.png'
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -87,6 +88,9 @@ class LoginPage extends React.Component {
         </header>
         <section className={styles.LoginSection}>
           <div className={styles.LoginContainer}>
+            <div className={styles.ImageBox}>
+              <img className={styles.Image} src={gyrus_png} alt="Gyrus Logo" />
+            </div>
             <div className={styles.LoginForm}>
               <h2>Login</h2>
               <form onSubmit={this.loginUser}>

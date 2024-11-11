@@ -21,7 +21,7 @@ class NavBar extends React.Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        fields: ['preferred_username']
+        fields: ['email']
       })
     })
       .then((response) => {
@@ -31,8 +31,8 @@ class NavBar extends React.Component {
         throw new Error('Unable to fetch user info');
       })
       .then((data) => {
-        if (data.preferred_username) {
-          this.setState({ username: data.preferred_username });
+        if (data.email) {
+          this.setState({ username: data.email });
         }
       })
       .catch((error) => {

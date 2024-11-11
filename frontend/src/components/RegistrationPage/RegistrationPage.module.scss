@@ -57,6 +57,32 @@
         align-items: center;
         padding: 1rem;
         background-color: #f4f4f9;
+        background: linear-gradient(45deg,
+                rgba(255, 0, 0, 0.8),
+                /* Red */
+                rgba(0, 0, 255, 0.8),
+                /* Blue */
+                rgba(128, 0, 128, 0.8),
+                /* Purple */
+                rgba(238, 130, 238, 0.8)
+                /* Violet */
+            );
+        background-size: 200% 200%;
+        animation: ambientColorShift 8s ease infinite;
+
+        @keyframes ambientColorShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
         .FormContainer {
             background-color: #fff;

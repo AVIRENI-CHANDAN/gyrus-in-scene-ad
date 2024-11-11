@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import gyrus_png from './../images/gyrus.png';
 import styles from './LandingPage.module.scss';
 
 class LandingPage extends React.Component {
@@ -25,6 +26,9 @@ class LandingPage extends React.Component {
             <div className={styles.Logo}>{this.app_title}</div>
             <ul className={styles.NavLinks}>
               <li>
+                <Link to="/" className={styles.NavLink}>Home</Link>
+              </li>
+              <li>
                 <button onClick={() => this.scrollToSection(this.featuresRef)} className={styles.NavLink}>
                   Features
                 </button>
@@ -44,10 +48,11 @@ class LandingPage extends React.Component {
           </nav>
           <div className={styles.HeroContent}>
             <div className={styles.HeroContentWrapper}>
-              <h1>Enhance Your Ads with Precision Placement</h1>
+              <h1>Create professional video with ISAR 2D demo</h1>
               <p>Insert ads into videos based on object detection, seamlessly integrating them at the perfect timestamps and locations.</p>
               <Link to="login" className={styles.CtaButton}>See Demo</Link>
             </div>
+            <img className={styles.GyrusImage} src={gyrus_png} draggable='false' />
           </div>
         </header>
 
