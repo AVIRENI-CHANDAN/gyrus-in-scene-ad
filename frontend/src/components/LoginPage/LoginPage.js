@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import styles from './LoginPage.module.scss';
 import gyrus_png from './../images/gyrus.png'
+import wave_bg from './../images/background-wave.jpg';
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -86,7 +87,7 @@ class LoginPage extends React.Component {
             </ul>
           </nav>
         </header>
-        <section className={styles.LoginSection}>
+        <section className={styles.LoginSection} style={{ backgroundImage: `url(${wave_bg})` }}>
           <div className={styles.LoginContainer}>
             <div className={styles.ImageBox}>
               <img className={styles.Image} src={gyrus_png} alt="Gyrus Logo" />

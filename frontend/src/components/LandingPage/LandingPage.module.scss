@@ -7,40 +7,13 @@ $footer-text-color: whitesmoke;
 $footer-link-hover-shadow: 0 0 2px gray;
 
 .LandingPage {
-    background-color: transparent;
-    background: linear-gradient(45deg,
-            rgba(255, 0, 0, 0.8),
-            /* Red */
-            rgba(0, 0, 255, 0.8),
-            /* Blue */
-            rgba(128, 0, 128, 0.8),
-            /* Purple */
-            rgba(238, 130, 238, 0.8)
-            /* Violet */
-        );
-    background-size: 200% 200%;
-    animation: ambientColorShift 8s ease infinite;
-
-    @keyframes ambientColorShift {
-        0% {
-            background-position: 0% 50%;
-        }
-
-        50% {
-            background-position: 100% 50%;
-        }
-
-        100% {
-            background-position: 0% 50%;
-        }
-    }
 
     // Hero Section
     .HeroSection {
         text-align: center;
-        height: 100vh;
         display: flex;
         flex-flow: column nowrap;
+        background-position: center;
 
         .Navbar {
             flex: 0 0 0.75rem;
@@ -93,24 +66,58 @@ $footer-link-hover-shadow: 0 0 2px gray;
             .HeroContentWrapper {
                 flex: 0 1 auto;
                 max-width: 600px;
-                margin: 2rem;
+                backdrop-filter: blur(4rem) saturate(80%);
+                padding: 2rem;
+                border-radius: 12px;
+
+                h1 {
+                    span {
+                        background: $primary-gradient;
+                        background-clip: text;
+                        -webkit-background-clip: text;
+                        color: transparent;
+                        text-transform: capitalize;
+                    }
+                }
+
+                p {
+                    font-weight: 600;
+                }
 
                 .CtaButton {
                     padding: 0.75rem 2rem;
-                    background: $primary-gradient;
+                    background: rgba(100, 100, 200);
                     color: $primary-color;
                     text-decoration: none;
                     border-radius: 25px;
                     margin-top: 1rem;
                     display: inline-block;
+                    transition: box-shadow ease-in-out 1s;
+
+                    &:hover {
+                        box-shadow: 0 0 6px gray;
+                    }
                 }
             }
 
-            .GyrusImage {
+            .GyrusImageContainer {
                 flex: 0 1 auto;
                 padding: 1rem;
-                box-shadow: 0 0 12px black;
-                user-select: none;
+                margin: 1rem 0;
+                // box-shadow: 0 0 12px black;
+                display: flex;
+                flex-flow: column nowrap;
+                gap: 12px;
+                position: relative;
+
+                .IntroImage {
+                    width: 500px;
+                    height: auto;
+                    position: relative;
+                    user-select: none;
+                    overflow: hidden;
+                    box-shadow: 0 0 8px black;
+                }
             }
         }
     }
@@ -129,6 +136,11 @@ $footer-link-hover-shadow: 0 0 2px gray;
                 background: $secondary-bg-color;
                 padding: 1.5rem;
                 border-radius: 8px;
+                transition: transform ease-in-out 500ms;
+
+                &:hover {
+                    transform: translateY(-16px);
+                }
             }
         }
     }

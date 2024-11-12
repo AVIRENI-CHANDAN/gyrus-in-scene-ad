@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import gyrus_png from './../images/gyrus.png';
+import util1 from './../images/util1.jpg';
+import util2 from './../images/util2.jpg';
+import util3 from './../images/util3.jpg';
+import wave_bg from './../images/background-wave.jpg';
 import styles from './LandingPage.module.scss';
 
 class LandingPage extends React.Component {
@@ -21,7 +24,11 @@ class LandingPage extends React.Component {
   render() {
     return (
       <div className={styles.LandingPage}>
-        <header className={styles.HeroSection}>
+        <header className={styles.HeroSection} style={{
+          backgroundImage: `url(${wave_bg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
           <nav className={styles.Navbar}>
             <div className={styles.Logo}>{this.app_title}</div>
             <ul className={styles.NavLinks}>
@@ -48,11 +55,16 @@ class LandingPage extends React.Component {
           </nav>
           <div className={styles.HeroContent}>
             <div className={styles.HeroContentWrapper}>
-              <h1>Create professional video with ISAR 2D demo</h1>
+              <h1>Create <span>professional video</span> with ISAR 2D</h1>
               <p>Insert ads into videos based on object detection, seamlessly integrating them at the perfect timestamps and locations.</p>
-              <Link to="login" className={styles.CtaButton}>See Demo</Link>
+              <Link to="login" className={styles.CtaButton}>Request Demo</Link>
             </div>
-            <img className={styles.GyrusImage} src={gyrus_png} draggable='false' />
+            <div className={styles.GyrusImageContainer}>
+              <img src={util1} className={styles.IntroImage} alt="Gyrusutil1" draggable='false' />
+              <img src={util2} className={styles.IntroImage} alt="Gyrusutil2" draggable='false' style={{ marginLeft: "6rem" }} />
+              {/* <img src={gyrus_png} className={styles.IntroImage} alt="Gyrusutil2" draggable='false' /> */}
+              <img src={util3} className={styles.IntroImage} alt="Gyrusutil3" draggable='false' />
+            </div>
           </div>
         </header>
 
@@ -99,8 +111,8 @@ class LandingPage extends React.Component {
         <footer className={styles.Footer} id="contact">
           <p className={styles.FooterTitle}>&copy; 2024 {this.app_title}. All rights reserved.</p>
           <ul className={styles.SocialLinks}>
-            <li><a href="#" className={styles.SocialLink}>LinkedIn</a></li>
-            <li><a href="#" className={styles.SocialLink}>Twitter</a></li>
+            <li><a href="https://linkedin.com/" className={styles.SocialLink}>LinkedIn</a></li>
+            <li><a href="https://x.com/" className={styles.SocialLink}>Twitter</a></li>
           </ul>
         </footer>
       </div>

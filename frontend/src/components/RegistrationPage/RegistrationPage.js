@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './RegistrationPage.module.scss';
+import wave_bg from './../images/background-wave.jpg';
 
 class RegistrationPage extends React.Component {
   constructor(props) {
@@ -75,7 +76,7 @@ class RegistrationPage extends React.Component {
           </nav>
         </header>
 
-        <section className={styles.RegistrationSection}>
+        <section className={styles.RegistrationSection} style={{ backgroundImage: `url(${wave_bg})` }}>
           <div className={styles.FormContainer}>
             <h2>Register</h2>
             <form className={styles.RegistrationForm} onSubmit={this.handleSubmit}>
