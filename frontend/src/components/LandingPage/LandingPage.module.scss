@@ -126,6 +126,7 @@ $footer-link-hover-shadow: 0 0 2px gray;
     .FeaturesSection {
         padding: 4rem 2rem;
         text-align: center;
+        background: linear-gradient(to right bottom, #87f7f762, #8787f762 90%);
 
         .FeatureGrid {
             display: grid;

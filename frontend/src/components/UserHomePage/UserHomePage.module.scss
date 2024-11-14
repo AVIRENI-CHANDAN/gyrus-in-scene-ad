@@ -1,7 +1,7 @@
 .UserHomePage {
     height: 100vh;
     display: flex;
-    flex-flow: column nowrap;
+    flex-flow: row nowrap;
     background: radial-gradient(circle at 20% 20%, rgba(173, 216, 230, 0.6), transparent 60%),
         /* Light Blue */
         radial-gradient(circle at 80% 20%, rgba(135, 206, 235, 0.6), transparent 60%),
@@ -29,10 +29,13 @@
 
     .NavigationBarContainer {
         flex: 0 0 auto;
-        border-bottom: 1px solid gray;
+        border-right: 1px solid gray;
     }
 
     .PageWrapper {
         flex: 1 1 auto;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
     }
 }

@@ -12,6 +12,7 @@
         display: flex;
         flex-flow: column nowrap;
         gap: 24px;
+        backdrop-filter: blur(72px);
 
         .Title {
             margin: 0;

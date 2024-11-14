@@ -66,7 +66,7 @@ class LoginPage extends React.Component {
   render() {
     // Redirect to /home if redirectToHome is true
     if (this.state.redirectToHome) {
-      return <Navigate to="/home" state={{ app_title: this.app_title }} />;
+      return <Navigate to="/home/new/project" state={{ app_title: this.app_title }} />;
     }
 
     return (
