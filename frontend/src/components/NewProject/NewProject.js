@@ -14,6 +14,7 @@ const NewProject = () => {
   const [timestamps, setTimestamps] = useState([]);
   const [selectedPoints, setSelectedPoints] = useState({}); // Stores points for each timestamp
   const [currentTimestamp, setCurrentTimestamp] = useState(null);
+  const [username, setUsername] = useState('Anonymous User');
   const videoRef = useRef(null); // Reference to the video element
   const navigate = useNavigate();
 
@@ -23,7 +24,6 @@ const NewProject = () => {
       const fileURL = URL.createObjectURL(selectedFile);
       setFile(selectedFile);
       setVideoSrc(fileURL);
-      console.log('Video source updated:', fileURL);
     }
   };
 
@@ -32,6 +32,33 @@ const NewProject = () => {
       videoRef.current.load(); // Ensures the video player reloads the new source
     }
   }, [videoSrc]);
+
+  useEffect(() => {
+    fetch('/user-info', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: ['cognito:username']
+      })
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Unable to fetch user info');
+      })
+      .then((data) => {
+        if (data['cognito:username']) {
+          setUsername(data['cognito:username']);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching user info:', error);
+      });
+  }, [])
 
   const handleSelectTimestamp = () => {
     if (videoRef.current) {
@@ -55,7 +82,7 @@ const NewProject = () => {
         formData.append('file', file);
       }
 
-      const response = await fetch('/projects', {
+      await fetch('/projects', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -72,13 +99,11 @@ const NewProject = () => {
           setError('Failed to create project. Please try again.');
         }
       }).then(data => {
-        console.log("Data", data);
         setFile(data.filename)
       })
 
     } catch (err) {
       setError('Failed to create project. Please try again.');
-      console.log(err);
     }
   };
 
@@ -148,7 +173,6 @@ const NewProject = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Video processed successfully:', result);
         navigate('/home');
       } else {
         const errorData = await response.json();
@@ -162,49 +186,64 @@ const NewProject = () => {
   };
 
 
-
-
-
   return (
     <div className={styles.NewProject}>
       {step === 1 && (
-        <div className={styles.NewProjectContainer}>
-          <h2 className={styles.Title}>Create New Project</h2>
-          {error && <p className={styles.Error}>{error}</p>}
-          <form onSubmit={handleSubmit} className={styles.Form} encType="multipart/form-data">
-            <div className={styles.FormGroup}>
-              <label htmlFor="name" className={styles.Label}>Project Name</label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                className={styles.InputField}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+        <>
+          <div className={styles.UserGreeting}>Welcome, <div className={styles.UserName}>{username}</div></div>
+          <div className={styles.NewProjectWrapper}>
+            <div className={styles.StepsContainer}>
+              <h3 className={styles.Title}>
+                In - Scene Replacement
+              </h3>
+              <ul className={styles.StepsList}>
+                <li className={styles.StepItem}>Create a project if not needed</li>
+                <li className={styles.StepItem}>Give proper name for your project</li>
+                <li className={styles.StepItem}>Choose a video for logo placement and then proceed with further steps</li>
+                <li className={styles.StepItem}>Delete the project in-case if you want to start with new video or project</li>
+              </ul>
             </div>
-            <div className={styles.FormGroup}>
-              <label htmlFor="description" className={styles.Label}>Description</label>
-              <textarea
-                id="description"
-                value={description}
-                className={styles.InputField}
-                onChange={(e) => setDescription(e.target.value)}
-              ></textarea>
+            <div className={styles.NewProjectContainer}>
+              <h2 className={styles.Title}>Create New Project</h2>
+              {error && <p className={styles.Error}>{error}</p>}
+              <form onSubmit={handleSubmit} className={styles.Form} encType="multipart/form-data">
+                <div className={styles.FormGroup}>
+                  <label htmlFor="name" className={styles.Label}>Project Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    className={styles.InputField}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    autoComplete='off'
+                  />
+                </div>
+                <div className={styles.FormGroup}>
+                  <label htmlFor="description" className={styles.Label}>Description</label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    className={styles.InputField}
+                    autoComplete='off'
+                    onChange={(e) => setDescription(e.target.value)}
+                  ></textarea>
+                </div>
+                <div className={styles.FormGroup}>
+                  <label htmlFor="file" className={styles.Label}>Upload Video</label>
+                  <input
+                    type="file"
+                    id="file"
+                    className={styles.InputField}
+                    onChange={handleFileChange}
+                    accept="video/*"
+                  />
+                </div>
+                <button type="submit" className={styles.SubmitButton}>Create Project</button>
+              </form>
             </div>
-            <div className={styles.FormGroup}>
-              <label htmlFor="file" className={styles.Label}>Upload Video</label>
-              <input
-                type="file"
-                id="file"
-                className={styles.InputField}
-                onChange={handleFileChange}
-                accept="video/*"
-              />
-            </div>
-            <button type="submit" className={styles.SubmitButton}>Create Project</button>
-          </form>
-        </div>
+          </div>
+        </>
       )}
 
       {step === 2 && (

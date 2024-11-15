@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import Component404 from '../Component404/Component404';
 import wave_bg from './../images/background-wave.jpg';
 import NavBar from './../NavBar/NavBar';
 import NewProject from './../NewProject/NewProject';
@@ -34,8 +35,9 @@ class UserHomePage extends React.Component {
         </div>
         <div className={styles.PageWrapper} style={{ backgroundImage: `url('${wave_bg}')` }}>
           <Routes>
-            <Route path="/" element={<ProjectList />} />
-            <Route path="/new/project" element={<NewProject />} />
+            <Route path="/projects" element={<ProjectList />} />
+            <Route path="/" element={<NewProject />} />
+            <Route path='*' element={<Component404 />} />
           </Routes>
         </div>
       </div>

@@ -5,6 +5,7 @@ import LandingPage from './components/LandingPage/LandingPage';
 import LoginPage from './components/LoginPage/LoginPage';
 import RegistrationPage from './components/RegistrationPage/RegistrationPage';
 import UserHomePage from './components/UserHomePage/UserHomePage';
+import Component404 from './components/Component404/Component404';
 
 
 class App extends React.Component {
@@ -20,6 +21,7 @@ class App extends React.Component {
         <Route path="/login" element={<LoginPage app_title={this.app_title} />} />
         <Route path="/register" element={<RegistrationPage app_title={this.app_title} />} />
         <Route path="/home/*" element={<UserHomePage app_title={this.app_title} />} />
+        <Route path='*' element={<Component404 />} />
       </Routes>
     );
   }

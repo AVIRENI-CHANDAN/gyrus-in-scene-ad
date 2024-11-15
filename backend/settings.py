@@ -15,6 +15,7 @@ ALLOWED_FIELDS = {
     "phone_number",
     "phone_number_verified",
     "preferred_username",
+    "cognito:username",
 }
 DEBUG = extract_environment_variable("DEBUG", "false").lower() == "true"
 ALLOWED_CORS_ORIGINS = ["http://localhost:3000", "http://localhost:5000"]

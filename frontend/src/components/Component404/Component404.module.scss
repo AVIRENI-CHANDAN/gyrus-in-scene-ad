@@ -1,0 +1,42 @@
+.Component404 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    text-align: center;
+
+    &Container {
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+    }
+
+    &Title {
+        font-size: 6rem;
+        color: #ff6f61;
+        margin-bottom: 1rem;
+    }
+
+    &Message {
+        font-size: 1.5rem;
+        color: #333333;
+        margin-bottom: 1.5rem;
+    }
+
+    &Link {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        color: #ffffff;
+        background-color: #007bff;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+    }
+}

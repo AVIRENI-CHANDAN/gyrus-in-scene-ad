@@ -1,96 +1,155 @@
 .NewProject {
     display: flex;
     flex-flow: column nowrap;
-    justify-content: center;
-    align-items: center;
     height: 100%;
 
-    .NewProjectContainer {
-        border: 1px solid lightgray;
-        padding: 24px;
-        border-radius: 12px;
+    .UserGreeting {
+        color: navy;
+        padding: 1rem 2rem;
+
+        .UserName {
+            text-transform: capitalize;
+            display: inline;
+        }
+    }
+
+    .NewProjectWrapper {
+        flex: 1 1 auto;
         display: flex;
         flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
         gap: 24px;
-        backdrop-filter: blur(72px);
 
-        .Title {
-            margin: 0;
-            padding: 0;
-            font-size: 14px;
-        }
+        .StepsContainer {
+            background-color: #ffffff88;
+            backdrop-filter: blur(144px);
+            padding: 1rem;
+            text-align: center;
+            border-radius: 12px;
 
-        .Error {
-            padding: 0;
-            margin: 0;
-            font-size: 12px;
-            color: red;
-        }
-
-        .Form {
-            display: flex;
-            flex-flow: column nowrap;
-            gap: 12px;
-
-            .FormGroup {
-                flex: 0 1 auto;
-                display: flex;
-                flex-flow: row nowrap;
-                gap: 8px;
-
-                .Label {
-                    flex: 1 1 30%;
-                    font-size: 12px;
-                    display: flex;
-                    flex-flow: column nowrap;
-                    justify-content: center;
-                }
-
-                .InputField {
-                    flex: 10 1 70%;
-                    resize: none;
-                    border: 1px solid gray;
-                    outline: none;
-                    padding: 8px;
-                    border-radius: 8px;
-                    min-width: 300px;
-                }
-
-                textarea.InputField {
-                    min-height: 5em;
-
-                    &::-webkit-scrollbar {
-                        width: 4px;
-                    }
-
-                    &::-webkit-scrollbar-thumb {
-                        background-color: #888;
-                        border-radius: 8px;
-                    }
-                }
+            .Title {
+                position: relative;
             }
 
-            .SubmitButton {
-                flex: 0 0 auto;
-                display: inline-block;
-                padding: 6px 12px;
-                font-size: 12px;
-                background-color: #007bff;
-                color: #fff;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                text-decoration: none;
-                text-align: center;
-                transition: background-color 0.3s, box-shadow 0.3s;
+            .StepsList {
+                display: flex;
+                flex-flow: column nowrap;
+                gap: 4px;
+                list-style: decimal;
+                font-size: 14px;
+                align-items: center;
+                text-wrap: wrap;
+                margin: 0;
+                margin-left: 1rem;
+                padding: 0;
 
-                &:hover {
-                    background-color: #0056b3;
-                    box-shadow: 0 0 4px gray;
+                .StepItem {
+                    position: relative;
+                    margin: 0;
+                    padding: 0;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        .NewProjectContainer {
+            flex: 0 1 auto;
+            border: 1px solid lightgray;
+            padding: 24px;
+            border-radius: 12px;
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 24px;
+            backdrop-filter: blur(72px);
+
+            .Title {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            .Error {
+                padding: 0;
+                margin: 0;
+                font-size: 12px;
+                color: red;
+            }
+
+            .Form {
+                display: flex;
+                flex-flow: column nowrap;
+                gap: 12px;
+
+                .FormGroup {
+                    flex: 0 1 auto;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    gap: 8px;
+
+                    .Label {
+                        flex: 1 1 30%;
+                        font-size: 12px;
+                        display: flex;
+                        flex-flow: column nowrap;
+                        justify-content: center;
+                    }
+
+                    .InputField {
+                        flex: 10 1 70%;
+                        resize: none;
+                        border: 1px solid gray;
+                        outline: none;
+                        padding: 8px;
+                        border-radius: 8px;
+                        min-width: 300px;
+
+                        &[type="file"] {
+                            border: none;
+                        }
+
+                        &:single-button {
+                            border: none;
+                        }
+                    }
+
+                    textarea.InputField {
+                        min-height: 5em;
+
+                        &::-webkit-scrollbar {
+                            width: 4px;
+                        }
+
+                        &::-webkit-scrollbar-thumb {
+                            background-color: #888;
+                            border-radius: 8px;
+                        }
+                    }
+                }
+
+                .SubmitButton {
+                    flex: 0 0 auto;
+                    display: inline-block;
+                    padding: 6px 12px;
+                    font-size: 12px;
+                    background-color: #007bff;
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    text-decoration: none;
+                    text-align: center;
+                    transition: background-color 0.3s, box-shadow 0.3s;
+
+                    &:hover {
+                        background-color: #0056b3;
+                        box-shadow: 0 0 4px gray;
+                    }
                 }
             }
         }
     }
+
 
     .TimestampsContainer {
         display: flex;

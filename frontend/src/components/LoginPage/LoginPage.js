@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import styles from './LoginPage.module.scss';
-import gyrus_png from './../images/gyrus.png'
 import wave_bg from './../images/background-wave.jpg';
+import gyrus_png from './../images/gyrus.png';
+import styles from './LoginPage.module.scss';
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -66,7 +66,7 @@ class LoginPage extends React.Component {
   render() {
     // Redirect to /home if redirectToHome is true
     if (this.state.redirectToHome) {
-      return <Navigate to="/home/new/project" state={{ app_title: this.app_title }} />;
+      return <Navigate to="/home" state={{ app_title: this.app_title }} />;
     }
 
     return (
